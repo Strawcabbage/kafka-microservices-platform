@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Kafka-microservices-platform.iml" filepath="$PROJECT_DIR$/Kafka-microservices-platform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kafka-microservices-platform.iml" filepath="$PROJECT_DIR$/kafka-microservices-platform.iml" />
     </modules>
   </component>
 </project>

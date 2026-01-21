@@ -1,0 +1,4 @@
+CREATE DATABASE orders;
+CREATE DATABASE inventory;
+CREATE DATABASE billing;
+CREATE DATABASE notifications;
