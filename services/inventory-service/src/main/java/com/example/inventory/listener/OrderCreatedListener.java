@@ -1,7 +1,7 @@
 package com.example.inventory.listener;
 
 import com.example.inventory.config.KafkaConsumerConfig;
-import com.example.inventory.event.OrderCreatedEvent;
+import com.example.events.OrderCreatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;

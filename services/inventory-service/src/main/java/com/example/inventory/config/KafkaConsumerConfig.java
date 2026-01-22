@@ -1,6 +1,6 @@
 package com.example.inventory.config;
 
-import com.example.inventory.event.OrderCreatedEvent;
+import com.example.events.OrderCreatedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

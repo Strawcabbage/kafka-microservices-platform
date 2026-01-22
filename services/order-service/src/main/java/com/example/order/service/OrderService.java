@@ -5,7 +5,7 @@ import com.example.order.domain.Order;
 import com.example.order.domain.OrderStatus;
 import com.example.order.dto.CreateOrderRequest;
 import com.example.order.dto.OrderResponse;
-import com.example.order.event.OrderCreatedEvent;
+import com.example.events.OrderCreatedEvent;
 import com.example.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
