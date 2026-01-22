@@ -1,1 +1,10 @@
+C:\Users\jacks\IdeaProjects\Kafka-microservices-platform\services\order-service\src\main\java\com\example\order\config\KafkaConfig.java
+C:\Users\jacks\IdeaProjects\Kafka-microservices-platform\services\order-service\src\main\java\com\example\order\controller\OrderController.java
+C:\Users\jacks\IdeaProjects\Kafka-microservices-platform\services\order-service\src\main\java\com\example\order\domain\Order.java
+C:\Users\jacks\IdeaProjects\Kafka-microservices-platform\services\order-service\src\main\java\com\example\order\domain\OrderStatus.java
+C:\Users\jacks\IdeaProjects\Kafka-microservices-platform\services\order-service\src\main\java\com\example\order\dto\CreateOrderRequest.java
+C:\Users\jacks\IdeaProjects\Kafka-microservices-platform\services\order-service\src\main\java\com\example\order\dto\OrderResponse.java
+C:\Users\jacks\IdeaProjects\Kafka-microservices-platform\services\order-service\src\main\java\com\example\order\event\OrderCreatedEvent.java
 C:\Users\jacks\IdeaProjects\Kafka-microservices-platform\services\order-service\src\main\java\com\example\order\OrderServiceApplication.java
+C:\Users\jacks\IdeaProjects\Kafka-microservices-platform\services\order-service\src\main\java\com\example\order\repository\OrderRepository.java
+C:\Users\jacks\IdeaProjects\Kafka-microservices-platform\services\order-service\src\main\java\com\example\order\service\OrderService.java
