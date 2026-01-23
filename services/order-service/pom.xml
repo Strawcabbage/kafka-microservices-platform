@@ -16,6 +16,13 @@
     <description>Handles order creation and orchestrates the order workflow</description>
 
     <dependencies>
+        <!-- Shared Events -->
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>common-events</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Web API -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
