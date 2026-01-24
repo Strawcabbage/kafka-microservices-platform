@@ -68,6 +68,40 @@ public class OrderService {
                 });
     }
 
+    @Transactional
+    public void markInventoryReserved(UUID orderId, UUID reservationId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            log.warn("Order {} is not in PENDING status, current status: {}", orderId, order.getStatus());
+            return;
+        }
+
+        order.setStatus(OrderStatus.INVENTORY_RESERVED);
+        order.setInventoryReservationId(reservationId);
+        orderRepository.save(order);
+
+        log.info("Order {} marked as INVENTORY_RESERVED with reservationId: {}", orderId, reservationId);
+    }
+
+    @Transactional
+    public void markOrderFailed(UUID orderId, String failureReason) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            log.warn("Order {} is not in PENDING status, current status: {}", orderId, order.getStatus());
+            return;
+        }
+
+        order.setStatus(OrderStatus.FAILED);
+        order.setFailureReason(failureReason);
+        orderRepository.save(order);
+
+        log.info("Order {} marked as FAILED with reason: {}", orderId, failureReason);
+    }
+
     private OrderResponse toResponse(Order order) {
         return OrderResponse.builder()
                 .id(order.getId())
