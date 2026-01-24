@@ -26,7 +26,7 @@ spring:
         spring.json.trusted.packages: com.example.*
 
 server:
-  port: 8083
+  port: 8081
 
 management:
   endpoints:
