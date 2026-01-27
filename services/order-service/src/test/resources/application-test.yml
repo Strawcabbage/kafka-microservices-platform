@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: order-service-test
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 0
+
+logging:
+  level:
+    com.example: DEBUG
+    org.springframework.kafka: WARN
+    org.testcontainers: WARN

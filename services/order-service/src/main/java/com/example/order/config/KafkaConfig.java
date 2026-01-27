@@ -3,6 +3,7 @@ package com.example.order.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -19,19 +20,30 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.CommonErrorHandler;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.util.backoff.ExponentialBackOff;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
 @EnableKafka
+@Slf4j
 public class KafkaConfig {
 
     public static final String ORDERS_TOPIC = "orders.v1";
     public static final String INVENTORY_TOPIC = "inventory.v1";
+    public static final String INVENTORY_DLQ_TOPIC = "inventory.v1.DLQ";
     public static final String CONSUMER_GROUP = "order-service";
+
+    private static final long INITIAL_INTERVAL_MS = 1000L;
+    private static final double MULTIPLIER = 2.0;
+    private static final long MAX_INTERVAL_MS = 10000L;
+    private static final int MAX_RETRIES = 3;
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -50,6 +62,50 @@ public class KafkaConfig {
                 .partitions(3)
                 .replicas(1)
                 .build();
+    }
+
+    @Bean
+    public NewTopic inventoryDlqTopic() {
+        return TopicBuilder.name(INVENTORY_DLQ_TOPIC)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public DeadLetterPublishingRecoverer deadLetterPublishingRecoverer(
+            KafkaTemplate<String, Object> kafkaTemplate) {
+        return new DeadLetterPublishingRecoverer(kafkaTemplate, (record, ex) -> {
+            log.error("Sending message to DLQ. Topic: {}, Key: {}, Exception: {}",
+                    record.topic(), record.key(), ex.getMessage());
+            return new org.apache.kafka.common.TopicPartition(
+                    record.topic() + ".DLQ", record.partition());
+        });
+    }
+
+    @Bean
+    public CommonErrorHandler errorHandler(DeadLetterPublishingRecoverer deadLetterPublishingRecoverer) {
+        ExponentialBackOff backOff = new ExponentialBackOff(INITIAL_INTERVAL_MS, MULTIPLIER);
+        backOff.setMaxInterval(MAX_INTERVAL_MS);
+        backOff.setMaxElapsedTime(calculateMaxElapsedTime());
+
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(deadLetterPublishingRecoverer, backOff);
+        errorHandler.addNotRetryableExceptions(IllegalArgumentException.class);
+        errorHandler.setRetryListeners((record, ex, deliveryAttempt) ->
+                log.warn("Retry attempt {} for record with key: {}, topic: {}",
+                        deliveryAttempt, record.key(), record.topic()));
+
+        return errorHandler;
+    }
+
+    private long calculateMaxElapsedTime() {
+        long total = 0;
+        long interval = INITIAL_INTERVAL_MS;
+        for (int i = 0; i < MAX_RETRIES; i++) {
+            total += Math.min(interval, MAX_INTERVAL_MS);
+            interval = (long) (interval * MULTIPLIER);
+        }
+        return total + 1000;
     }
 
     @Bean
@@ -89,10 +145,12 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
-            ConsumerFactory<String, Object> consumerFactory) {
+            ConsumerFactory<String, Object> consumerFactory,
+            CommonErrorHandler errorHandler) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
+        factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
 }
